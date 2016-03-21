@@ -1,0 +1,26 @@
+
+resources:
+  - name: git-repo
+    type: git
+    source:
+      uri: https://github.com/herrwieger/concourse-mvn-sample.git
+      branch: master
+
+jobs:
+  - name: maven-package
+    plan:
+    - get: git-repo
+      trigger: true
+    - task: maven-package
+      privileged: true
+      config:
+        platform: linux
+        image_resource:
+        image: "docker:///maven#latest"
+
+        inputs:
+          - name: git-repo
+
+        run:
+          path: mvn
+          args: ["-f", "git-repo/pom.xml", "-DskipTests=true", "package"]
